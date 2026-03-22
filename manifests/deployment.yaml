@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms1-web-app
+  namespace: ms1-webhosting
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ms1-web-app
+  template:
+    metadata:
+      labels:
+        app: ms1-web-app
+    spec:
+      containers:
+      - name: web
+        image: hashicorp/http-echo:0.2.3
+        args: ["-text=Hello from EKS!"]
+        ports:
+        - containerPort: 5678
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "32Mi"
+          limits:
+            cpu: "100m"
+            memory: "64Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5678
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5678
+          initialDelaySeconds: 10
+          periodSeconds: 15
